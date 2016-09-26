@@ -54,7 +54,7 @@
                 <configuration>
                 <archive>
                     <manifest>
-                        <mainClass>com.epam.bigdata.kafka.Run</mainClass>
+                        <mainClass>com.epam.bigdata.kafka.Producer</mainClass>
                     </manifest>
                 </archive>
                 <descriptorRefs>

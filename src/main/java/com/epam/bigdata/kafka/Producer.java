@@ -6,7 +6,12 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * Created by Ilya_Starushchanka on 9/26/2016.
@@ -21,27 +26,20 @@ public class Producer {
             producer = new KafkaProducer<>(properties);
         }
 
-        try {
-            for (int i = 0; i < 1000000; i++) {
-                // send lots of messages
-                producer.send(new ProducerRecord<String, String>(
-                        "fast-messages",
-                        String.format("{\"type\":\"test\", \"t\":%.3f, \"k\":%d}", System.nanoTime() * 1e-9, i)));
-
-                // every so often send to a different topic
-                if (i % 1000 == 0) {
-                    producer.send(new ProducerRecord<String, String>(
-                            "fast-messages",
-                            String.format("{\"type\":\"marker\", \"t\":%.3f, \"k\":%d}", System.nanoTime() * 1e-9, i)));
-                    producer.send(new ProducerRecord<String, String>(
-                            "summary-markers",
-                            String.format("{\"type\":\"other\", \"t\":%.3f, \"k\":%d}", System.nanoTime() * 1e-9, i)));
-                    producer.flush();
-                    System.out.println("Sent msg number " + i);
+        try(Stream<Path> paths = Files.walk(Paths.get(args[0]))) {
+            paths.forEach(filePath -> {
+                if (Files.isRegularFile(filePath)) {
+                    System.out.println("Path to file: " + filePath);
+                    try(Stream<String> lines = Files.lines(filePath, Charset.forName("ISO-8859-1"))) {
+                        lines.forEach(line ->{
+                                producer.send(new ProducerRecord<>("fileLines", line));
+                            System.out.println("Line from file: " + line);
+                        });
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
-            }
-        } catch (Throwable throwable) {
-            System.out.printf("%s", throwable.getStackTrace());
+            });
         } finally {
             producer.close();
         }
