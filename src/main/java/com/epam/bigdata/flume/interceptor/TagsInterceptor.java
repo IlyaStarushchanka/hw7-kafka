@@ -59,10 +59,10 @@ public class TagsInterceptor implements Interceptor {
         Map<String, String> headers = event.getHeaders();
         List<String> messageFields = getMessageFields(event.getBody());
 
-        String userTagsID = getUserTags(messageFields.get(20));
+        String userTags = getUserTags(messageFields.get(20));
 
-        headers.put("has_user_tags", StringUtils.isNotBlank(userTagsID) ? "true" : "false" );
-        messageFields.add(userTagsID);
+        headers.put("has_user_tags", StringUtils.isNotBlank(userTags) ? "true" : "false" );
+        messageFields.add(userTags);
 
         event.setHeaders(headers);
         event.setBody(String.join("\t", messageFields).getBytes());
