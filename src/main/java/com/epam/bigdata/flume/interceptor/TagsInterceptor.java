@@ -8,6 +8,8 @@ import org.apache.flume.interceptor.Interceptor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,6 +24,8 @@ import java.util.stream.Collectors;
  * Created by Ilya_Starushchanka on 9/26/2016.
  */
 public class TagsInterceptor implements Interceptor {
+    private static final Logger Logger =
+            LoggerFactory.getLogger(TagsInterceptor.class);
 
     private static final String UserTagsPath = "/tmp/admin/dic/user.profile.tags.us.txt.out";
 
@@ -31,6 +35,7 @@ public class TagsInterceptor implements Interceptor {
 
     @Override
     public void initialize() {
+        Logger.info("Initializing..");
         fillUserTagsDictionary();
     }
 
@@ -45,6 +50,7 @@ public class TagsInterceptor implements Interceptor {
                         row -> row[0],
                         row -> row[1]
                 ));
+        Logger.info("{} user tags were loaded", userTagsDictionary.size());
     }
 
     @Override
@@ -54,6 +60,7 @@ public class TagsInterceptor implements Interceptor {
         List<String> messageFields = getMessageFields(event.getBody());
 
         String userTagsID = getUserTags(messageFields.get(20));
+
         headers.put("has_user_tags", StringUtils.isNotBlank(userTagsID) ? "true" : "false" );
         messageFields.add(userTagsID);
 
@@ -89,6 +96,7 @@ public class TagsInterceptor implements Interceptor {
 
     @Override
     public void close() {
+        Logger.info("Closing..");
     }
 
     static class FileReader
