@@ -60,7 +60,8 @@ public class TagsInterceptor implements Interceptor {
         List<String> messageFields = getMessageFields(event.getBody());
 
         String userTags = getUserTags(messageFields.get(20));
-
+        String eventDate = messageFields.get(1).substring(0, 8);
+        headers.put("event_date", eventDate);
         headers.put("has_user_tags", StringUtils.isNotBlank(userTags) ? "true" : "false" );
         messageFields.add(userTags);
 
