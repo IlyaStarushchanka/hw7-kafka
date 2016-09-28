@@ -31,7 +31,7 @@ public class Producer {
                 if (Files.isRegularFile(filePath)) {
                     try(Stream<String> lines = Files.lines(filePath, Charset.forName("ISO-8859-1"))) {
                         lines.forEach(line ->{
-                                producer.send(new ProducerRecord<>("fileLines_new5", line));
+                                producer.send(new ProducerRecord<>("log_files", line));
                         });
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);

@@ -30,7 +30,6 @@ public class TagsInterceptor implements Interceptor {
     private static final String UserTagsPath = "/tmp/admin/dic/user.profile.tags.us.txt.out";
 
     //made protected for testing purposes
-    protected FileReader fileReader = new FileReader();
     private Map<String,String> userTagsDictionary;
 
     @Override
@@ -41,7 +40,7 @@ public class TagsInterceptor implements Interceptor {
 
     private void fillUserTagsDictionary() {
 
-        List<String> lines = fileReader.readFile(UserTagsPath);
+        List<String> lines = readFile(UserTagsPath);
 
         userTagsDictionary = lines.stream()
                 .skip(1)
@@ -100,30 +99,27 @@ public class TagsInterceptor implements Interceptor {
         Logger.info("Closing..");
     }
 
-    static class FileReader
-    {
 
-        List<String> readFile(String path) {
-            try{
+    public List<String> readFile(String path) {
+        try{
 
-                Configuration hadoopConfig = new Configuration();
+            Configuration hadoopConfig = new Configuration();
 
-                FileSystem fs =  FileSystem.get(new URI("hdfs://sandbox.hortonworks.com"), hadoopConfig);
-                Path hdpPath = new Path(path);
+            FileSystem fs =  FileSystem.get(new URI("hdfs://sandbox.hortonworks.com"), hadoopConfig);
+            Path hdpPath = new Path(path);
 
-                BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(hdpPath)));
+            BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(hdpPath)));
 
-                List<String> lines = new ArrayList<>();
-                String line;
-                while ((line = br.readLine()) != null) {
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = br.readLine()) != null) {
 
-                    lines.add(line);
-                }
-                return lines;
+                lines.add(line);
             }
-            catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            return lines;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
